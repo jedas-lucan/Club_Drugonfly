@@ -243,7 +243,15 @@
 <script>
   (function(){
     const AUTH_KEY = 'drugonfly_member_auth';
-    if(localStorage.getItem(AUTH_KEY) !== '1'){
+    let authed = false;
+
+    try {
+      authed = window.localStorage.getItem(AUTH_KEY) === '1';
+    } catch (e) {
+      authed = false;
+    }
+
+    if (!authed) {
       window.location.replace('index.html?vip=1');
     }
   })();
