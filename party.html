@@ -8,8 +8,8 @@ a{color:inherit}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .dot,.brandDot{width:30px;height:30px;border-radius:10px;display:block;object-fit:cover}
 .brand strong{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.88);font-weight:500}
-.nav{display:flex;gap:6px;flex-wrap:wrap}
-.nav a{font-size:12px;text-decoration:none;border:none;background:rgba(255,255,255,.03);padding:8px 10px;border-radius:11px;color:rgba(255,255,255,.84);letter-spacing:.12em;text-transform:uppercase}
+.nav{display:flex;gap:6px;flex-wrap:nowrap;white-space:nowrap;align-items:center}
+.nav a{font-size:12px;text-decoration:none;border:none;background:rgba(255,255,255,.03);padding:8px 10px;border-radius:11px;color:rgba(255,255,255,.84);letter-spacing:.12em;text-transform:uppercase;flex:0 0 auto}
 .nav a.active{border:none;color:#fff;box-shadow:none;background:rgba(236,167,255,.06)}
 .page{padding:0}
 
@@ -116,26 +116,34 @@ a{color:inherit}
   cursor:pointer;font-size:12px;letter-spacing:.06em;text-decoration:none
 }
 
+@media (max-width:720px){
+  .shell{width:calc(100vw - 16px);margin:8px auto 28px}
+  .topbar{padding:8px 10px;gap:10px}
+  .brand strong{font-size:10px;letter-spacing:.14em}
+  .nav{gap:10px}
+  .nav a{padding:4px 2px;font-size:11px;letter-spacing:.1em;background:transparent}
+}
 @media (max-width:980px){
   .partyStage{padding:10px 12px;min-height:0}
-  .stageInner{grid-template-columns:1fr;gap:12px;min-height:auto}
+  .stageInner{grid-template-columns:1fr;gap:12px;min-height:auto;justify-items:center}
   .spacerCol{display:none}
-  .infoWrap{grid-column:auto;padding-top:6px}
+  .infoWrap{grid-column:auto;padding-top:6px;display:flex;justify-content:center;width:100%}
 
-  .rightStack{width:min(92vw,520px);margin:0 auto;align-items:center;}
+  .rightStack{width:min(84vw,420px);margin:0 auto;align-items:center;}
   .posterWrap{width:100%}
   .infoText{text-align:center}
   .title{font-size:20px;margin-top:10px}
+  .desc,.genre,.line{max-width:34ch;margin-left:auto;margin-right:auto}
 
   .merchFloat{display:none}
   .merchFlow{display:block}
 
   /* ✅ 모바일에서만 퍼포머 선명 */
-  .performerBGFixed{width:min(86vw,720px);height:min(70vh,720px);opacity:.38;}
+  .performerBGFixed{left:50%;transform:translateX(-50%);justify-content:center;width:min(74vw,480px);height:min(56vh,520px);opacity:.24;}
   .performerBGFixed::after{
     background:
-      linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.12) 52%, rgba(0,0,0,.32) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.28) 100%);
+      radial-gradient(circle at 50% 64%, rgba(0,0,0,.05), rgba(0,0,0,.18) 62%, rgba(0,0,0,.34) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.24) 100%);
   }
 
   .edgeNav .edgeBtn.left{left:8px}
@@ -156,7 +164,7 @@ a{color:inherit}
   <nav class="nav">
     <a href="club.html">CLUB</a>
     <a class="active" href="party.html">PARTY</a>
-    <a href="vip.html">VIP</a>
+    <a href="index.html?vip=1">VIP</a>
   </nav>
 </header>
 
