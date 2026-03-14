@@ -62,7 +62,7 @@ body{overflow:hidden}
 <div class="app" id="app">
   <canvas id="particleCanvas"></canvas>
   <div id="wingOverlay"></div>
-  <header class="topbar topbar-min"><a class="brand-mini" href="index.html">CLUB DRUGONFLY</a><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
+  <header class="topbar topbar-min"><a class="brand-mini" href="#" data-nav="logo-login">CLUB DRUGONFLY</a><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
   <div class="mainOnlyVideoHint" id="hintText" aria-hidden="true"></div>
   <section class="loginScreen" id="loginScreen">
     <div class="loginWrap">
@@ -236,6 +236,7 @@ async function sampleLinePoints(svgText,maxPoints){
   const memberIdInput=document.getElementById('memberId');
   const memberPwInput=document.getElementById('memberPw');
   const navLinks=[...document.querySelectorAll('.nav-main a[data-nav]')];
+  const logoLoginLink=document.querySelector('.brand-mini[data-nav="logo-login"]');
 
   let dpr=1,W=0,H=0,scale=1,center={x:0,y:0},particles=[],raf=0;
   const startedAt=performance.now();
@@ -344,6 +345,16 @@ async function sampleLinePoints(svgText,maxPoints){
       }
     });
   });
+
+  if(logoLoginLink){
+    logoLoginLink.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const url = new URL(window.location.href);
+      url.searchParams.delete('vip');
+      window.history.replaceState({},'',url);
+      openLoginFor(ROUTES.club);
+    });
+  }
 
   const bootUrl = new URL(window.location.href);
   if(bootUrl.searchParams.get('vip') === '1'){
