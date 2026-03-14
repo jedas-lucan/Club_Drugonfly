@@ -22,7 +22,9 @@ body{overflow:hidden}
 #wingOverlay .login-lines{fill:none;stroke:rgba(236,167,255,.92);stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(214,120,255,.22));animation:wingHint 4.6s ease-in-out infinite}
 #wingOverlay .login-lines.mi{stroke-width:2.2}
 #wingOverlay .login-lines.in{stroke-width:3.1}
-#wingOverlay .hit{fill:transparent;stroke:transparent;stroke-width:28;pointer-events:all;cursor:pointer}
+#wingOverlay .hit{fill:rgba(0,0,0,0.001);stroke:transparent;stroke-width:64;pointer-events:all;cursor:pointer}
+#wingOverlay .hit-body{fill:rgba(0,0,0,0.001);stroke:transparent;pointer-events:all;cursor:pointer}
+@media (max-width:720px){#wingOverlay .hit{stroke-width:110}}
 @keyframes wingHint{0%,100%{opacity:.82;filter:drop-shadow(0 0 6px rgba(214,120,255,.20))}20%{opacity:.96}26%{opacity:1;filter:drop-shadow(0 0 14px rgba(255,140,255,.65))}36%{opacity:.86}72%{opacity:.84}78%{opacity:.97;filter:drop-shadow(0 0 10px rgba(200,130,255,.45))}}
 .topbar{position:relative;z-index:5;width:min(1200px,calc(100vw - 24px));margin:12px auto 0;padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:10px;transition:opacity .4s ease, transform .4s ease}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}.dot{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#f472b6,#8b5cf6)}
@@ -55,14 +57,14 @@ body{overflow:hidden}
 .nav-main{gap:8px}
 .nav-main a{background:transparent;border:0;padding:6px 4px;border-radius:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.86)}
 .nav-main a:hover{color:#fff;text-shadow:0 0 10px rgba(236,167,255,.45)}
-@media (max-width:720px){.topbar-min{justify-content:center;padding:6px 0}.brand-mini{left:0;top:-2px;position:relative;display:block;margin-right:auto;font-size:11px}.brand-mini-btn{padding:12px 18px 12px 12px;margin:-12px 0 -12px -12px;min-height:44px}.nav-main{display:flex !important;gap:14px}}
+@media (max-width:720px){.topbar-min{justify-content:center;padding:6px 0}.brand-mini{left:0;top:-2px;position:relative;display:block;margin-right:auto;font-size:11px}.nav-main{display:flex !important;gap:14px}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <canvas id="particleCanvas"></canvas>
   <div id="wingOverlay"></div>
-  <header class="topbar topbar-min"><button class="brand-mini brand-mini-btn" type="button" aria-label="Club Drugonfly login">CLUB DRUGONFLY</button><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
+  <header class="topbar topbar-min"><a class="brand-mini" href="index.html">CLUB DRUGONFLY</a><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
   <div class="mainOnlyVideoHint" id="hintText" aria-hidden="true"></div>
   <section class="loginScreen" id="loginScreen">
     <div class="loginWrap">
@@ -249,11 +251,52 @@ async function sampleLinePoints(svgText,maxPoints){
 
   function renderWingOverlay(){
     const left=center.x - (SW*scale)/2; const top=center.y - (SH*scale)/2;
-    overlay.innerHTML = `\n      <svg viewBox="0 0 ${SW} ${SH}" width="${SW*scale}" height="${SH*scale}" style="left:${left}px;top:${top}px">\n        <g id="dragonflyHitLayer">\n          <!-- 전체 잠자리 클릭영역: 완전 투명 / 클릭만 동작 -->\n          <!-- 오른쪽 위날개 -->\n          <path class="hit" d="M 735 370\n            C 802 336, 885 312, 992 274\n            C 1086 240, 1180 195, 1266 164\n            C 1314 146, 1360 150, 1378 176\n            C 1392 197, 1387 223, 1360 244\n            C 1325 271, 1287 295, 1235 324\n            C 1170 361, 1103 388, 1023 412\n            C 930 440, 847 446, 777 440\n            C 753 438, 740 430, 732 416\n            C 724 402, 725 384, 735 370 Z"/>\n          <!-- 오른쪽 아래날개 -->\n          <path class="hit" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z"/>\n          <!-- 중앙 몸통(상단) -->\n          <path class="hit" d="M670 185 C712 170, 760 190, 782 230 C795 253, 792 290, 770 315 C788 338, 798 365, 798 392 C798 432, 778 466, 744 484 C722 495, 695 496, 673 487 C635 471, 612 436, 614 394 C615 364, 626 336, 645 314 C622 286, 620 248, 638 219 C648 203, 658 193, 670 185 Z"/>\n          <!-- 중앙 몸통(하단/배) + 클릭여유 -->\n          <path class="hit" d="M670 448 C690 440, 710 438, 730 442 C772 451, 796 487, 792 530 C787 591, 784 657, 784 742 C784 858, 780 962, 770 1048 C765 1083, 734 1100, 700 1100 C666 1100, 635 1083, 630 1048 C620 962, 616 858, 616 742 C616 657, 613 591, 608 530 C604 487, 628 451, 670 448 Z"/>\n          <!-- 좌우 대칭 왼쪽 날개 -->\n          <g transform="translate(1400,0) scale(-1,1)">\n            <path class="hit" d="M 735 370\n              C 802 336, 885 312, 992 274\n              C 1086 240, 1180 195, 1266 164\n              C 1314 146, 1360 150, 1378 176\n              C 1392 197, 1387 223, 1360 244\n              C 1325 271, 1287 295, 1235 324\n              C 1170 361, 1103 388, 1023 412\n              C 930 440, 847 446, 777 440\n              C 753 438, 740 430, 732 416\n              C 724 402, 725 384, 735 370 Z"/>\n            <path class="hit" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z"/>\n          </g>\n        </g>\n      </svg>`;
+    overlay.innerHTML = `
+      <svg viewBox="0 0 ${SW} ${SH}" width="${SW*scale}" height="${SH*scale}" style="left:${left}px;top:${top}px">
+        <g id="dragonflyHitLayer">
+          <!-- 전체 잠자리 클릭영역: 완전 투명 / 클릭만 동작 -->
+          <!-- 오른쪽 위날개 -->
+          <path class="hit" d="M 735 370
+            C 802 336, 885 312, 992 274
+            C 1086 240, 1180 195, 1266 164
+            C 1314 146, 1360 150, 1378 176
+            C 1392 197, 1387 223, 1360 244
+            C 1325 271, 1287 295, 1235 324
+            C 1170 361, 1103 388, 1023 412
+            C 930 440, 847 446, 777 440
+            C 753 438, 740 430, 732 416
+            C 724 402, 725 384, 735 370 Z"/>
+          <!-- 오른쪽 아래날개 -->
+          <path class="hit" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z"/>
+          <!-- 중앙 몸통(상단) -->
+          <path class="hit" d="M670 185 C712 170, 760 190, 782 230 C795 253, 792 290, 770 315 C788 338, 798 365, 798 392 C798 432, 778 466, 744 484 C722 495, 695 496, 673 487 C635 471, 612 436, 614 394 C615 364, 626 336, 645 314 C622 286, 620 248, 638 219 C648 203, 658 193, 670 185 Z"/>
+          <!-- 중앙 몸통(하단/배) + 클릭여유 -->
+          <path class="hit" d="M670 448 C690 440, 710 438, 730 442 C772 451, 796 487, 792 530 C787 591, 784 657, 784 742 C784 858, 780 962, 770 1048 C765 1083, 734 1100, 700 1100 C666 1100, 635 1083, 630 1048 C620 962, 616 858, 616 742 C616 657, 613 591, 608 530 C604 487, 628 451, 670 448 Z"/>
+          <!-- 좌우 대칭 왼쪽 날개 -->
+          <g transform="translate(1400,0) scale(-1,1)">
+            <path class="hit" d="M 735 370
+              C 802 336, 885 312, 992 274
+              C 1086 240, 1180 195, 1266 164
+              C 1314 146, 1360 150, 1378 176
+              C 1392 197, 1387 223, 1360 244
+              C 1325 271, 1287 295, 1235 324
+              C 1170 361, 1103 388, 1023 412
+              C 930 440, 847 446, 777 440
+              C 753 438, 740 430, 732 416
+              C 724 402, 725 384, 735 370 Z"/>
+            <path class="hit" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z"/>
+          </g>
+          <!-- 모바일용 전체 잠자리 터치 영역 보강 -->
+          <ellipse class="hit-body" cx="700" cy="470" rx="720" ry="340"/>
+          <rect class="hit-body" x="420" y="130" width="560" height="930" rx="180" ry="180"/>
+        </g>
+      </svg>`;
     overlaySvg = overlay.querySelector('svg');
-    const hitTargets = overlay.querySelectorAll('.hit');
+    const hitTargets = overlay.querySelectorAll('.hit, .hit-body');
     hitTargets.forEach(el => {
       el.addEventListener('click', ()=>openLoginFor(ROUTES.club), {passive:true});
+      el.addEventListener('pointerdown', ()=>openLoginFor(ROUTES.club), {passive:true});
+      el.addEventListener('touchstart', ()=>openLoginFor(ROUTES.club), {passive:true});
       el.addEventListener('pointermove', e => {
         const r = canvas.getBoundingClientRect();
         mouse.x = e.clientX - r.left;
