@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>CLUB DRUGONFLY - VIP</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    background:
+      radial-gradient(circle at 18% 12%, rgba(168,85,247,.14), transparent 42%),
+      radial-gradient(circle at 82% 14%, rgba(244,114,182,.10), transparent 44%),
+      radial-gradient(circle at 50% 86%, rgba(124,58,237,.07), transparent 58%),
+      #07060a;
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    overflow-x:hidden;
+  }
+  a{color:inherit}
+
+  /* Topbar */
+  .shell{width:min(1240px, calc(100vw - 24px)); margin:12px auto 40px;}
+  .topbar{position:sticky;top:12px;z-index:20;margin-bottom:14px;padding:10px 12px;border:none;border-radius:16px;background:rgba(0,0,0,.12);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .dot,.brandDot{width:30px;height:30px;border-radius:10px;display:block;object-fit:cover}
+  .brand strong{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.88);font-weight:500}
+  .nav{display:flex;gap:6px;flex-wrap:wrap}
+  .nav a{font-size:12px;text-decoration:none;border:none;background:rgba(255,255,255,.03);padding:8px 10px;border-radius:11px;color:rgba(255,255,255,.84);letter-spacing:.12em;text-transform:uppercase}
+  .nav a.active{border:none;color:#fff;box-shadow:none;background:rgba(236,167,255,.06)}
+
+  /* Content */
+  .wrap{
+    width:min(1240px, calc(100vw - 24px));
+    margin:0 auto;
+    padding:10px 0 44px;
+  }
+
+  /* Background video (shown when OPEN, desktop+mobile) */
+  #bgVid{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:0;
+    opacity:.16;
+    filter:blur(2px) saturate(1.05);
+    transform:scale(1.03);
+    pointer-events:none;
+    display:none;
+  }
+  .shell, .topbar, .wrap{position:relative; z-index:2;}
+
+  /* VIP layout */
+  .vipLayout{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+    min-height: calc(100vh - 140px);
+    justify-content: center;
+    padding-top: 24px;
+  }
+
+  /* Box stage */
+  .centerStage{
+    position:relative;
+    width:auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  #burstCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+  .boxBtn{
+    appearance:none;
+    border:0;
+    padding:0;
+    background:transparent;
+    cursor:pointer;
+    line-height:0;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    position:relative;
+    z-index:2;
+  }
+  .boxImg{
+    display:block;
+    width:min(62vw, 760px);
+    height:auto;
+    max-height:74vh;
+    transform:translateY(0) scale(1);
+    transition:transform 180ms ease, filter 180ms ease;
+    filter:drop-shadow(0 20px 70px rgba(0,0,0,.55));
+  }
+  .boxBtn:hover .boxImg{
+    transform:translateY(-6px) scale(1.03);
+    filter:drop-shadow(0 28px 85px rgba(0,0,0,.62));
+  }
+  .boxBtn:active .boxImg{ transform:translateY(-2px) scale(1.01); }
+
+  /* On touch devices: no press-jump */
+  @media (hover: none){
+    .boxBtn:hover .boxImg{ transform:translateY(0) scale(1); }
+    .boxBtn:active .boxImg{ transform:translateY(0) scale(1); }
+  }
+
+  /* Glow pulse (slower fade) */
+  .glowPulse{ animation:glowPulse 1200ms ease-out both; }
+  @keyframes glowPulse{
+    0%{
+      filter:
+        drop-shadow(0 20px 70px rgba(0,0,0,.55))
+        drop-shadow(0 0 0 rgba(244,114,182,0))
+        drop-shadow(0 0 0 rgba(139,92,246,0));
+    }
+    35%{
+      filter:
+        drop-shadow(0 24px 80px rgba(0,0,0,.62))
+        drop-shadow(0 0 18px rgba(244,114,182,.38))
+        drop-shadow(0 0 28px rgba(139,92,246,.34));
+    }
+    100%{
+      filter:
+        drop-shadow(0 20px 70px rgba(0,0,0,.55))
+        drop-shadow(0 0 0 rgba(244,114,182,0))
+        drop-shadow(0 0 0 rgba(139,92,246,0));
+    }
+  }
+
+  /* Video tile base */
+  .vidCard{
+    background:transparent;
+    border:0;
+    padding:0;
+    cursor:pointer;
+    border-radius:14px;
+    overflow:hidden;
+    line-height:0;
+  }
+  .vid{
+    width:100%;
+    object-fit:cover;
+    display:block;
+    background:transparent;
+    transform:scale(1);
+    transition:transform 160ms ease, filter 160ms ease;
+    filter:drop-shadow(0 16px 45px rgba(0,0,0,.45));
+  }
+  .vidCard:hover .vid{
+    transform:scale(1.02);
+    filter:drop-shadow(0 22px 58px rgba(0,0,0,.55));
+  }
+
+  /* Slot cards: reserve space so nothing shifts, then fade in */
+  .slotCard{ opacity:0; transform:none; transition:opacity 260ms ease; }
+  .slotCard.on{ opacity:1; }
+
+  /* Mobile uses square tiles; Desktop keeps natural ratio (no forced aspect) */
+  .vidMobile{ aspect-ratio:1/1; }
+  .vidDesk{ height:auto; } /* natural ratio */
+
+  /* Desktop: left 2 + box + right 2 */
+  .deskRow{
+    width:100%;
+    display:grid;
+    grid-template-columns: 260px auto 260px;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+  }
+  .revealLeft, .revealRight{
+    width:260px;
+    display:grid;
+    grid-template-columns:repeat(1, minmax(0,1fr));
+    gap:12px;
+    align-content:center;
+    opacity:0;
+    pointer-events:none;
+    transform:none;
+    transition:opacity 180ms ease;
+    min-height: 320px; /* reserve so box doesn't shift */
+  }
+  .revealLeft.open, .revealRight.open{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* Mobile: 2 above + box + 2 below */
+  .revealTop, .revealBottom{
+    display:none;
+    width:min(520px, 100%);
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:10px;
+    opacity:0;
+    pointer-events:none;
+    transform:none;
+    transition:opacity 180ms ease;
+    min-height: 0;
+  }
+  .revealTop.open, .revealBottom.open{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  @media (max-width: 860px){
+    .deskRow{ grid-template-columns: 1fr; gap:14px; }
+    .revealLeft, .revealRight{ display:none; }
+  }
+
+  @media (max-width: 520px){
+    .vipLayout{
+      min-height: calc(100vh - 92px);
+      justify-content:center;
+      gap:12px;
+      padding-top: 0;
+    }
+    .deskRow{ display:block; }
+    .revealLeft, .revealRight{ display:none; }
+    .revealTop, .revealBottom{ display:grid; min-height: min(44vw, 220px); }
+    .boxImg{ width:94vw; max-height:80vh; }
+  }
+
+  /* Desktop: lock tile box height so videos loading never push layout */
+  @media (min-width: 521px){
+    .revealLeft .vidCard, .revealRight .vidCard{ height:240px; background:transparent; }
+    .revealLeft .vid, .revealRight .vid{ height:100%; width:100%; object-fit:cover; background:transparent; }
+  }
+
+</style>
+</head>
+<body>
+  <video id="bgVid" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+
+  
+<script>
+  (function(){
+    const AUTH_KEY = 'drugonfly_member_auth';
+    if(localStorage.getItem(AUTH_KEY) !== '1'){
+      window.location.replace('main.html?vip=1');
+    }
+  })();
+</script>
+
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="main.html">
+        <img class="dot" src="assets/img/brand-dot.png" alt="brand"><strong>CLUB DRUGONFLY</strong>
+      </a>
+      <nav class="nav">
+        <a href="club.html">CLUB</a>
+        <a href="party.html">PARTY</a>
+        <a class="active" href="vip.html">VIP</a>
+      </nav>
+    </header>
+
+    <main class="wrap">
+      <section class="vipLayout" aria-label="VIP layout">
+
+        <!-- Mobile: 2 tiles ABOVE box -->
+        <section class="revealTop" id="revealTop" aria-label="VIP videos top (mobile)"></section>
+
+        <!-- Desktop row: left 2 tiles + box + right 2 tiles -->
+        <section class="deskRow" aria-label="VIP desktop row">
+          <section class="revealLeft" id="revealLeft" aria-label="VIP videos left (desktop)"></section>
+
+          <section class="centerStage" aria-label="VIP box stage">
+            <canvas id="burstCanvas"></canvas>
+            <button class="boxBtn" id="boxBtn" aria-label="VIP Box">
+              <img class="boxImg" id="boxImg" alt="VIP Box" />
+            </button>
+          </section>
+
+          <section class="revealRight" id="revealRight" aria-label="VIP videos right (desktop)"></section>
+        </section>
+
+        <!-- Mobile: 2 tiles BELOW box -->
+        <section class="revealBottom" id="revealBottom" aria-label="VIP videos bottom (mobile)"></section>
+
+      </section>
+    </main>
+  </div>
+
+<script>
+  const BOX_CLOSED_SRC = 'assets/img/VIP-BOX-CLOSED.png';
+  const BOX_OPEN_SRC   = 'assets/img/VIP-BOX-OPEN.png';
+
+  // Tiles placement: 1,2 on left/top and 3,5 on right/bottom. Background is 4.
+  const TILES_LEFT  = ['assets/video/1.mp4','assets/video/2.mp4'];
+  const TILES_RIGHT = ['assets/video/3.mp4','assets/video/5.mp4'];
+  const TILES_TOP   = ['assets/video/1.mp4','assets/video/2.mp4'];
+  const TILES_BOTTOM= ['assets/video/3.mp4','assets/video/5.mp4'];
+  const BG_VIDEO_SRC = 'assets/video/4.mp4';
+
+  const mMobile = window.matchMedia('(max-width: 520px)');
+
+  const boxBtn = document.getElementById('boxBtn');
+  const boxImg = document.getElementById('boxImg');
+
+  const revealLeft = document.getElementById('revealLeft');
+  const revealRight = document.getElementById('revealRight');
+  const revealTop = document.getElementById('revealTop');
+  const revealBottom = document.getElementById('revealBottom');
+
+  const bgVid = document.getElementById('bgVid');
+  bgVid.src = BG_VIDEO_SRC;
+
+  const canvas = document.getElementById('burstCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let isOpen = false;
+  let timers = [];
+
+  boxImg.src = BOX_CLOSED_SRC;
+
+  function pulse(){
+    boxImg.classList.remove('glowPulse');
+    void boxImg.offsetWidth;
+    boxImg.classList.add('glowPulse');
+  }
+
+  function sizeCanvasToStage(){
+    const stage = canvas.parentElement;
+    const r = stage.getBoundingClientRect();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(r.width * dpr);
+    canvas.height = Math.floor(r.height * dpr);
+    canvas.style.width = r.width + 'px';
+    canvas.style.height = r.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', () => sizeCanvasToStage(), {passive:true});
+
+  function burst(durationMs=400){
+    sizeCanvasToStage();
+
+    const stage = canvas.parentElement.getBoundingClientRect();
+    const imgRect = boxImg.getBoundingClientRect();
+    const cx = (imgRect.left + imgRect.right)/2 - stage.left;
+    const cy = (imgRect.top + imgRect.bottom)/2 - stage.top;
+
+    const count = 140;
+    const parts = [];
+    for(let i=0;i<count;i++){
+      const ang = Math.random()*Math.PI*2;
+      const spd = 200 + Math.random()*500;
+      parts.push({
+        x: cx + (Math.random()*8-4),
+        y: cy + (Math.random()*8-4),
+        vx: Math.cos(ang)*spd,
+        vy: Math.sin(ang)*spd,
+        r: 1.2 + Math.random()*2.0,
+        a: 0.60 + Math.random()*0.25,
+        life: durationMs*(0.7 + Math.random()*0.6)
+      });
+    }
+
+    const start = performance.now();
+    function tick(t){
+      const dt = Math.min(0.033, (t - (tick._prev||t))/1000);
+      tick._prev = t;
+
+      ctx.clearRect(0,0,stage.width, stage.height);
+
+      const elapsed = t - start;
+      for(const p of parts){
+        p.life -= dt*1000;
+        if(p.life <= 0) continue;
+
+        p.vx *= (1 - 1.8*dt);
+        p.vy *= (1 - 1.8*dt);
+        p.vy += 560*dt;
+        p.x += p.vx*dt;
+        p.y += p.vy*dt;
+
+        const k = Math.max(0, Math.min(1, p.life / durationMs));
+        const alpha = p.a * (k*k);
+        const col = (Math.random() < 0.5)
+          ? `rgba(244,114,182,${alpha})`
+          : `rgba(139,92,246,${alpha})`;
+
+        ctx.beginPath();
+        ctx.fillStyle = col;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      if(elapsed < durationMs) requestAnimationFrame(tick);
+      else ctx.clearRect(0,0,stage.width, stage.height);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function clearTimers(){
+    for(const t of timers) clearTimeout(t);
+    timers = [];
+  }
+
+  function clearSlots(){
+    clearTimers();
+
+    revealLeft.innerHTML = '';
+    revealRight.innerHTML = '';
+    revealTop.innerHTML = '';
+    revealBottom.innerHTML = '';
+
+    revealLeft.classList.remove('open');
+    revealRight.classList.remove('open');
+    revealTop.classList.remove('open');
+    revealBottom.classList.remove('open');
+  }
+
+  function showBg(){
+    if(isOpen){
+      bgVid.style.display = 'block';
+      try{ bgVid.play(); }catch(e){}
+    } else {
+      try{ bgVid.pause(); bgVid.currentTime = 0; }catch(e){}
+      bgVid.style.display = 'none';
+    }
+  }
+
+  function makeCard(src, label, variant){
+    const btn = document.createElement('button');
+    btn.className = 'vidCard';
+    btn.setAttribute('aria-label', label);
+
+    const v = document.createElement('video');
+    v.className = 'vid ' + (variant === 'desk' ? 'vidDesk' : 'vidMobile');
+    v.src = src;
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.preload = 'metadata';
+
+    btn.appendChild(v);
+    return {btn, video:v};
+  }
+
+  function scheduleAdd(container, src, label, delayMs, variant){
+    const timer = setTimeout(() => {
+      const {btn, video} = makeCard(src, label, variant);
+      container.appendChild(btn);
+      try{ video.currentTime = 0; video.play(); }catch(e){}
+    }, delayMs);
+    timers.push(timer);
+  }
+
+  function buildByMode(){
+    clearTimers();
+
+    // reset containers; keep CSS reserved space. We'll create placeholders immediately so nothing shifts.
+    revealLeft.innerHTML = '';
+    revealRight.innerHTML = '';
+    revealTop.innerHTML = '';
+    revealBottom.innerHTML = '';
+    revealLeft.classList.remove('open');
+    revealRight.classList.remove('open');
+    revealTop.classList.remove('open');
+    revealBottom.classList.remove('open');
+
+    if(!isOpen) return;
+
+    // first appearance delay + slower cadence
+    const baseDelay = 520;   // 첫 등장 지연(더 늦게)
+    const stepDelay = 620;   // 각 등장 간격(더 느리게)
+
+    const makePlaceholder = (variant) => {
+      const btn = document.createElement('button');
+      btn.className = 'vidCard slotCard';
+      btn.setAttribute('aria-label', 'slot');
+      const v = document.createElement('video');
+      v.className = 'vid ' + (variant === 'desk' ? 'vidDesk' : 'vidMobile');
+      v.muted = true; v.loop = true; v.playsInline = true;
+      v.preload = 'metadata';
+      btn.appendChild(v);
+      return {btn, video:v};
+    };
+
+    const activate = (slot, src) => {
+      const {btn, video} = slot;
+      // set src only when activating to avoid network spam
+      video.src = src;
+      btn.classList.add('on');
+      try{ video.currentTime = 0; video.play(); }catch(e){}
+    };
+
+    if(mMobile.matches){
+      revealTop.classList.add('open');
+      revealBottom.classList.add('open');
+
+      // placeholders (2 top, 2 bottom) inserted immediately to lock layout
+      const topSlots = [makePlaceholder('mobile'), makePlaceholder('mobile')];
+      const botSlots = [makePlaceholder('mobile'), makePlaceholder('mobile')];
+      topSlots.forEach(s => revealTop.appendChild(s.btn));
+      botSlots.forEach(s => revealBottom.appendChild(s.btn));
+
+      // strict order: 1 -> 2 -> 3 -> 5 (top1, top2, bottom1, bottom2)
+      const seq = [
+        {slot: topSlots[0], src: TILES_TOP[0]},
+        {slot: topSlots[1], src: TILES_TOP[1]},
+        {slot: botSlots[0], src: TILES_BOTTOM[0]},
+        {slot: botSlots[1], src: TILES_BOTTOM[1]},
+      ];
+
+      seq.forEach((it, idx) => {
+        const timer = setTimeout(() => activate(it.slot, it.src), baseDelay + idx*stepDelay);
+        timers.push(timer);
+      });
+    } else {
+      revealLeft.classList.add('open');
+      revealRight.classList.add('open');
+
+      // placeholders (2 left, 2 right)
+      const leftSlots = [makePlaceholder('desk'), makePlaceholder('desk')];
+      const rightSlots = [makePlaceholder('desk'), makePlaceholder('desk')];
+      leftSlots.forEach(s => revealLeft.appendChild(s.btn));
+      rightSlots.forEach(s => revealRight.appendChild(s.btn));
+
+      // strict order: 1 -> 2 -> 3 -> 5 (left1, left2, right1, right2)
+      const seq = [
+        {slot: leftSlots[0], src: TILES_LEFT[0]},
+        {slot: leftSlots[1], src: TILES_LEFT[1]},
+        {slot: rightSlots[0], src: TILES_RIGHT[0]},
+        {slot: rightSlots[1], src: TILES_RIGHT[1]},
+      ];
+
+      seq.forEach((it, idx) => {
+        const timer = setTimeout(() => activate(it.slot, it.src), baseDelay + idx*stepDelay);
+        timers.push(timer);
+      });
+    }
+  }
+
+  function openBox(){
+    isOpen = true;
+    boxImg.src = BOX_OPEN_SRC;
+    pulse();
+    burst(400);
+    showBg();
+    buildByMode();
+  }
+
+  function closeBox(){
+    isOpen = false;
+    boxImg.src = BOX_CLOSED_SRC;
+    pulse();
+    burst(260);
+    clearSlots();
+    showBg();
+  }
+
+  boxBtn.addEventListener('click', () => {
+    if(isOpen) closeBox();
+    else openBox();
+  });
+
+  function onTileClick(e){
+    const card = e.target.closest('.vidCard');
+    if(!card) return;
+    const v = card.querySelector('video');
+    if(!v) return;
+    if(v.paused) { try{ v.play(); }catch(err){} }
+    else v.pause();
+  }
+  revealLeft.addEventListener('click', onTileClick);
+  revealRight.addEventListener('click', onTileClick);
+  revealTop.addEventListener('click', onTileClick);
+  revealBottom.addEventListener('click', onTileClick);
+
+  // Rebuild on mode change / resize so it "shifts" correctly from either direction.
+  if(mMobile.addEventListener){
+    mMobile.addEventListener('change', () => {
+      showBg();
+      buildByMode();
+    });
+  }
+  let resizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      showBg();
+      buildByMode();
+    }, 180);
+  }, {passive:true});
+</script>
+</body>
+</html>

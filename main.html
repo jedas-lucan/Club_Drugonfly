@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Club Drugonfly VIP Main</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#06060b;color:#fff;font-family:Inter,system-ui,sans-serif}
+body{overflow:hidden}
+.app{position:relative;min-height:100vh;overflow:hidden;background:
+  radial-gradient(circle at 18% 16%, rgba(168,85,247,.14), transparent 38%),
+  radial-gradient(circle at 78% 14%, rgba(244,114,182,.11), transparent 40%),
+  radial-gradient(circle at 50% 82%, rgba(124,58,237,.07), transparent 56%), #07060a;transition:background .7s ease;}
+.app::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.08) .8px, transparent .8px);background-size:22px 22px;opacity:.03;transition:opacity .6s ease}
+.app::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 48%, transparent 12%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.24) 100%), linear-gradient(to bottom, rgba(0,0,0,.03), rgba(0,0,0,.12));transition:opacity .6s ease}
+.app.login-mode{background:#040408}
+.app.login-mode::before,.app.login-mode::after{opacity:.2}
+#particleCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
+#wingOverlay{position:absolute;inset:0;z-index:3;pointer-events:none}
+#wingOverlay svg{position:absolute;left:0;top:0;overflow:visible}
+#wingOverlay .login-lines{fill:none;stroke:rgba(236,167,255,.92);stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(214,120,255,.22));animation:wingHint 4.6s ease-in-out infinite}
+#wingOverlay .login-lines.mi{stroke-width:2.2}
+#wingOverlay .login-lines.in{stroke-width:3.1}
+#wingOverlay .hit{fill:transparent;stroke:transparent;stroke-width:28;pointer-events:all;cursor:pointer}
+@keyframes wingHint{0%,100%{opacity:.82;filter:drop-shadow(0 0 6px rgba(214,120,255,.20))}20%{opacity:.96}26%{opacity:1;filter:drop-shadow(0 0 14px rgba(255,140,255,.65))}36%{opacity:.86}72%{opacity:.84}78%{opacity:.97;filter:drop-shadow(0 0 10px rgba(200,130,255,.45))}}
+.topbar{position:relative;z-index:5;width:min(1200px,calc(100vw - 24px));margin:12px auto 0;padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:10px;transition:opacity .4s ease, transform .4s ease}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}.dot{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#f472b6,#8b5cf6)}
+.brand strong{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.92);white-space:nowrap}
+.nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.nav a{color:rgba(255,255,255,.84);font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);padding:8px 10px;border-radius:11px}
+.mainOnlyVideoHint{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;z-index:4;color:rgba(255,255,255,.35);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:0;transition:opacity .4s ease}
+.loginScreen{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .45s ease}
+.loginScreen.show{opacity:1;pointer-events:none}
+.loginWrap{pointer-events:auto;width:min(460px,calc(100vw - 24px));display:flex;flex-direction:column;gap:10px;transform:translateY(14px) scale(.985);opacity:0;transition:transform .45s ease, opacity .45s ease}
+.loginScreen.show .loginWrap{pointer-events:auto;transform:translateY(0) scale(1);opacity:1}
+.panel{border:1px solid rgba(255,255,255,.10);background:rgba(6,6,10,.7);backdrop-filter:blur(16px);border-radius:18px;box-shadow:0 22px 60px rgba(0,0,0,.48);overflow:hidden}
+.login-panel{padding:12px}.login-form{display:flex;flex-direction:column;gap:8px}
+.field{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.02);border-radius:12px;padding:10px 11px}
+.field label{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.46);margin-bottom:4px;line-height:1}
+.field input{width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:14px}
+.field input::placeholder{color:rgba(255,255,255,.24)}
+.login-btn{border:0;border-radius:12px;padding:12px;background:linear-gradient(90deg,#ec4899,#8b5cf6);color:#fff;font-weight:650;cursor:pointer}
+.video-panel{padding:10px}
+.video-frame{position:relative;width:100%;aspect-ratio:16/9;min-height:190px;border-radius:14px;border:1px solid rgba(255,255,255,.09);overflow:hidden;background:linear-gradient(135deg,#211128,#110b18 58%,#0b0811)}
+.video-frame::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 22% 24%, rgba(244,114,182,.18), transparent 38%),radial-gradient(circle at 76% 33%, rgba(168,85,247,.18), transparent 40%),radial-gradient(circle at 50% 76%, rgba(59,130,246,.05), transparent 46%)}
+.video-frame::after{content:"";position:absolute;inset:0;background-image:linear-gradient(to right, rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(to bottom, rgba(255,255,255,.025) 1px, transparent 1px);background-size:26px 26px;opacity:.2}
+.video-inner{position:absolute;inset:9%;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.14)}
+.video-tag{position:absolute;left:12px;top:10px;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.55)}
+.app.transitioning #wingOverlay{pointer-events:none}
+.app.transitioning .topbar{opacity:.35;transform:translateY(-4px)}
+@media (max-width:720px){.nav{display:none}.topbar{width:calc(100vw - 16px);margin-top:8px;padding:8px 10px}.loginWrap{pointer-events:auto;width:calc(100vw - 16px)}.video-frame{min-height:160px}}
+
+.topbar-min{position:relative;justify-content:flex-end;background:transparent;border:0;backdrop-filter:none;box-shadow:none;padding:6px 4px;margin-top:10px}
+.brand-mini{position:absolute;left:4px;top:8px;color:rgba(255,255,255,.88);text-decoration:none;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.nav-main{gap:8px}
+.nav-main a{background:transparent;border:0;padding:6px 4px;border-radius:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.86)}
+.nav-main a:hover{color:#fff;text-shadow:0 0 10px rgba(236,167,255,.45)}
+@media (max-width:720px){.topbar-min{justify-content:center;padding:6px 0}.brand-mini{left:0;top:-2px;position:relative;display:block;margin-right:auto;font-size:11px}.nav-main{display:flex !important;gap:14px}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <canvas id="particleCanvas"></canvas>
+  <div id="wingOverlay"></div>
+  <header class="topbar topbar-min"><a class="brand-mini" href="main.html">CLUB DRUGONFLY</a><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
+  <div class="mainOnlyVideoHint" id="hintText" aria-hidden="true"></div>
+  <section class="loginScreen" id="loginScreen">
+    <div class="loginWrap">
+<section class="panel login-panel">
+        <form class="login-form" id="loginForm">
+          <div class="field"><label for="memberId">ID</label><input id="memberId" type="text" placeholder="Member ID"></div>
+          <div class="field"><label for="memberPw">Password</label><input id="memberPw" type="password" placeholder="Password"></div>
+          <button class="login-btn" type="submit">Login</button>
+        </form>
+      </section>
+      
+    </div>
+  </section>
+</div>
+<script>
+const SVG_TEXT = String.raw`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1100" width="1400" height="1100">  
+  <defs>  
+    <style>  
+      .ol { fill:none; stroke:#000; stroke-linecap:round; stroke-linejoin:round; stroke-width:7.5; }  
+      .bd { fill:none; stroke:#000; stroke-linecap:round; stroke-linejoin:round; stroke-width:5.2; }  
+      .in { fill:none; stroke:#000; stroke-linecap:round; stroke-linejoin:round; stroke-width:3.1; }  
+      .mi { fill:none; stroke:#000; stroke-linecap:round; stroke-linejoin:round; stroke-width:2.3; }  
+      .loginWing { fill:none; stroke:#000; stroke-linecap:round; stroke-linejoin:round; stroke-width:3.0; }  
+      .loginHit { fill:transparent; stroke:none; }  
+    </style>  
+<clipPath id="foreWingRightClip">  
+  <path d="  
+    M 735 370  
+    C 802 336, 885 312, 992 274  
+    C 1086 240, 1180 195, 1266 164  
+    C 1314 146, 1360 150, 1378 176  
+    C 1392 197, 1387 223, 1360 244  
+    C 1325 271, 1287 295, 1235 324  
+    C 1170 361, 1103 388, 1023 412  
+    C 930 440, 847 446, 777 440  
+    C 753 438, 740 430, 732 416  
+    C 724 402, 725 384, 735 370 Z" />  
+</clipPath>  
+
+<g id="halfTop">  
+  <path class="bd" d="M700 210 C722 190, 752 192, 766 218 C777 238, 773 262, 756 279 C741 294, 718 298, 701 286" />  
+  <path class="in" d="M709 223 C727 210, 748 214, 756 233 C763 250, 758 268, 744 278" />  
+  <path class="mi" d="M742 208 C748 191, 757 180, 765 172" />  
+  <path class="mi" d="M719 207 C716 190, 709 179, 703 171" />  
+
+  <path class="bd" d="M700 286 C723 278, 743 286, 753 304 C763 322, 760 347, 742 360 C728 370, 711 372, 700 365" />  
+  <path class="bd" d="M700 332 C735 320, 770 340, 782 374 C792 404, 783 438, 756 456 C734 470, 712 470, 700 460" />  
+  <path class="in" d="M711 347 C736 340, 759 354, 767 378 C774 400, 768 423, 747 438" />  
+
+  <path class="ol" d="  
+    M 735 370  
+    C 802 336, 885 312, 992 274  
+    C 1086 240, 1180 195, 1266 164  
+    C 1314 146, 1360 150, 1378 176  
+    C 1392 197, 1387 223, 1360 244  
+    C 1325 271, 1287 295, 1235 324  
+    C 1170 361, 1103 388, 1023 412  
+    C 930 440, 847 446, 777 440  
+    C 753 438, 740 430, 732 416  
+    C 724 402, 725 384, 735 370 Z" />  
+
+  <g clip-path="url(#foreWingRightClip)">  
+    <g class="in">  
+      <path d="M746 381 C833 351, 940 318, 1064 278 C1163 246, 1249 214, 1338 183" />  
+      <path d="M744 402 C843 386, 952 365, 1073 336 C1176 312, 1262 287, 1352 250" />  
+      <path d="M741 422 C843 425, 949 420, 1064 404 C1162 391, 1245 373, 1330 345" />  
+      <path d="M780 439 C846 438, 915 440, 987 433 C1086 423, 1179 407, 1268 378" />  
+
+      <path d="M803 360 C834 346, 867 347, 894 360 C874 377, 852 390, 828 405 C806 400, 792 383, 803 360 Z" />  
+      <path d="M925 319 C978 302, 1038 288, 1098 281 C1071 311, 1037 335, 999 354 C956 357, 923 346, 925 319 Z" />  
+      <path d="M1116 253 C1169 234, 1225 213, 1280 198 C1262 229, 1232 252, 1195 271 C1154 278, 1124 272, 1116 253 Z" />  
+      <path d="M1249 181 C1288 167, 1326 164, 1357 173 C1345 197, 1324 214, 1298 228 C1271 226, 1253 210, 1249 181 Z" />  
+
+      <path d="M858 352 C885 371, 910 388, 933 412" />  
+      <path d="M1016 300 C1034 326, 1048 352, 1058 384" />  
+      <path d="M1172 241 C1177 275, 1176 307, 1167 340" />  
+      <path d="M1295 194 C1290 223, 1277 247, 1258 271" />  
+    </g>  
+
+    <g class="bd">  
+      <path d="M732 397 C744 392, 757 390, 772 389" />  
+      <path d="M733 411 C746 417, 760 423, 776 430" />  
+      <path d="M747 391 C740 405, 734 418, 729 431" />  
+    </g>  
+  </g>  
+</g>  
+
+<g id="halfBottom">  
+  <path class="bd" d="M748 430 C771 422, 792 435, 799 457 C805 477, 798 498, 780 510 C763 521, 747 519, 739 505 C731 489, 731 462, 748 430 Z" />  
+  <path class="in" d="M752 442 C769 437, 784 447, 788 463 C792 477, 787 492, 775 500" />  
+
+  <path class="bd" d="M700 460 C713 464, 721 477, 722 494 C723 516, 716 548, 712 600 C709 648, 708 709, 708 780 C708 854, 707 927, 705 992" />  
+  <path class="bd" d="M705 492 C718 520, 718 560, 715 605 C712 656, 712 716, 712 785 C712 859, 710 930, 706 995" />  
+  <g class="mi">  
+    <path d="M704 620 C710 617, 714 617, 718 622" />  
+    <path d="M704 735 C710 731, 714 732, 718 737" />  
+    <path d="M703 847 C709 843, 713 844, 717 849" />  
+    <path d="M703 955 C708 952, 712 952, 716 956" />  
+  </g>  
+  <path class="bd" d="M705 995 C709 1006, 709 1018, 705 1028" />  
+  <path class="mi" d="M705 1028 C711 1036, 714 1042, 717 1048" />  
+  <path class="mi" d="M705 1028 C703 1037, 699 1043, 695 1049" />  
+
+  <path class="ol" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z" />  
+  <g class="bd">  
+    <path d="M730 459 C744 464, 758 473, 772 486" />  
+    <path d="M730 477 C744 492, 756 510, 768 531" />  
+    <path d="M744 460 C737 485, 732 513, 729 544" />  
+  </g>  
+
+  <g id="loginInRightHindWing">  
+    <path class="loginWing" d="M 800 546 C 795 605, 795 655, 800 700 C 834 704, 870 706, 910 706" />  
+    <path class="loginWing" d="M 898 576 C 870 588, 859 619, 871 647 C 884 677, 919 690, 949 675 C 975 661, 984 628, 970 600 C 956 574, 925 567, 898 576 Z" />  
+    <path class="loginWing" d="M 909 593 C 889 601, 881 623, 889 642 C 898 662, 922 670, 943 659 C 962 648, 968 625, 958 606 C 948 589, 928 584, 909 593 Z" />  
+    <path class="loginWing" d="M 917 606 C 904 612, 899 627, 904 640 C 910 654, 926 660, 940 653 C 952 646, 956 630, 949 617 C 942 605, 929 602, 917 606 Z" />  
+    <path class="loginWing" d="M 992 594 C 962 582, 931 597, 922 627 C 913 656, 931 685, 962 693 C 993 701, 1023 686, 1031 658 C 1010 658, 992 657, 974 654" />  
+    <path class="loginWing" d="M 1038 607 C 1061 604, 1080 604, 1100 607" />  
+    <path class="loginWing" d="M 1069 610 C 1065 643, 1065 674, 1069 705" />  
+    <path class="loginWing" d="M 1038 707 C 1059 710, 1080 710, 1102 707" />  
+    <path class="loginWing" d="M 1144 612 C 1150 644, 1149 674, 1142 705 C 1126 670, 1108 638, 1087 610 C 1092 644, 1091 676, 1082 706" />  
+  </g>  
+
+  <path id="loginHitRightWing" class="loginHit" d="M 786 535 C 866 562, 963 597, 1080 641 C 1173 676, 1255 706, 1327 732 C 1297 748, 1259 756, 1212 756 C 1129 755, 1047 744, 950 733 C 880 724, 826 717, 785 709 C 755 702, 739 689, 731 667 C 724 644, 724 615, 727 582 C 730 557, 734 542, 786 535 Z" />  
+</g>
+
+  </defs>    <use href="#halfTop"/>  
+  <use href="#halfBottom"/>    <g transform="translate(1400,0) scale(-1,1)">  
+    <use href="#halfTop"/>  
+    <use href="#halfBottom"/>  
+  </g>    <g>  
+    <path class="bd" d="M660 220 C675 202, 688 194, 700 194 C712 194, 725 202, 740 220" />  
+    <path class="bd" d="M673 286 C683 280, 691 278, 700 278 C709 278, 717 280, 727 286" />  
+    <path class="bd" d="M652 332 C668 320, 684 315, 700 315 C716 315, 732 320, 748 332" />  
+    <path class="bd" d="M640 402 C658 388, 679 381, 700 380 C721 381, 742 388, 760 402" />  
+    <path class="bd" d="M651 459 C667 452, 683 448, 700 448 C717 448, 733 452, 749 459" />  
+    <path class="bd" d="M700 458 C700 540, 700 700, 700 1028" />  
+  </g>  
+</svg>`;
+
+const AUTH_ID = 'Sw33t_t00th_8o8';
+const AUTH_PW = 'Sp0iL3d_Sug4r!';
+const AUTH_KEY='drugonfly_member_auth';
+const ROUTES = { club:'club.html', party:'party.html', vip:'vip.html' };
+let pendingLoginDestination = ROUTES.club;
+
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+function getViewBox(svgText){const m=svgText.match(/viewBox\s*=\s*"([\d.\-]+)\s+([\d.\-]+)\s+([\d.\-]+)\s+([\d.\-]+)"/i); return m?{w:+m[3],h:+m[4]}:{w:1400,h:1100};}
+function whiteStrokeSvg(svgText){return svgText.replace(/stroke:\s*#000/gi,'stroke:#fff').replace(/stroke="#000"/gi,'stroke="#fff"');}
+async function sampleLinePoints(svgText,maxPoints){
+  const vb=getViewBox(svgText), SW=Math.round(vb.w), SH=Math.round(vb.h);
+  const img=new Image(); const blob=new Blob([svgText],{type:'image/svg+xml;charset=utf-8'}); const url=URL.createObjectURL(blob);
+  await new Promise((res,rej)=>{img.onload=res; img.onerror=rej; img.src=url;}).catch(()=>{});
+  const c=document.createElement('canvas'); c.width=SW; c.height=SH; const x=c.getContext('2d',{willReadFrequently:true});
+  if(!x) return {pts:[],SW,SH}; x.clearRect(0,0,SW,SH); x.drawImage(img,0,0,SW,SH); URL.revokeObjectURL(url);
+  const d=x.getImageData(0,0,SW,SH).data; const candidates=[];
+  for(let y=0;y<SH;y++){ for(let xx=0;xx<SW;xx++){ const i=(y*SW+xx)*4; const a=d[i+3]; if(a>8) candidates.push({x:xx,y,w:a}); }}
+  if(!candidates.length) return {pts:[],SW,SH};
+  let acc=0; const prefix=new Float64Array(candidates.length); for(let i=0;i<candidates.length;i++){acc+=candidates[i].w; prefix[i]=acc;}
+  const pts=[]; for(let i=0;i<maxPoints;i++){ let r=Math.random()*acc,lo=0,hi=prefix.length-1; while(lo<hi){const mid=(lo+hi)>>1; if(prefix[mid]<r) lo=mid+1; else hi=mid;} const p=candidates[lo]; pts.push({x:p.x+(Math.random()-.5)*0.8,y:p.y+(Math.random()-.5)*0.8,w:p.w}); }
+  return {pts,SW,SH};
+}
+
+(async function(){
+  const app=document.getElementById('app');
+  const canvas=document.getElementById('particleCanvas'); const ctx=canvas.getContext('2d'); if(!ctx) return;
+  const overlay=document.getElementById('wingOverlay');
+  const loginScreen=document.getElementById('loginScreen');
+  const hintText=document.getElementById('hintText');
+  const form=document.getElementById('loginForm');
+  const memberIdInput=document.getElementById('memberId');
+  const memberPwInput=document.getElementById('memberPw');
+  const navLinks=[...document.querySelectorAll('.nav-main a[data-nav]')];
+
+  let dpr=1,W=0,H=0,scale=1,center={x:0,y:0},particles=[],raf=0;
+  const startedAt=performance.now();
+  let SW=1400,SH=1100;
+  let mouse={x:-9999,y:-9999,active:false};
+  let transitioning=false, transitionAt=0, loginShown=false;
+  let overlaySvg, loginHit;
+
+  function toScreenX(x){ return center.x + (x - SW/2)*scale; }
+  function toScreenY(y){ return center.y + (y - SH/2)*scale; }
+
+  function renderWingOverlay(){
+    const left=center.x - (SW*scale)/2; const top=center.y - (SH*scale)/2;
+    overlay.innerHTML = `\n      <svg viewBox="0 0 ${SW} ${SH}" width="${SW*scale}" height="${SH*scale}" style="left:${left}px;top:${top}px">\n        <g id="dragonflyHitLayer">\n          <!-- 전체 잠자리 클릭영역: 완전 투명 / 클릭만 동작 -->\n          <!-- 오른쪽 위날개 -->\n          <path class="hit" d="M 735 370\n            C 802 336, 885 312, 992 274\n            C 1086 240, 1180 195, 1266 164\n            C 1314 146, 1360 150, 1378 176\n            C 1392 197, 1387 223, 1360 244\n            C 1325 271, 1287 295, 1235 324\n            C 1170 361, 1103 388, 1023 412\n            C 930 440, 847 446, 777 440\n            C 753 438, 740 430, 732 416\n            C 724 402, 725 384, 735 370 Z"/>\n          <!-- 오른쪽 아래날개 -->\n          <path class="hit" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z"/>\n          <!-- 중앙 몸통(상단) -->\n          <path class="hit" d="M670 185 C712 170, 760 190, 782 230 C795 253, 792 290, 770 315 C788 338, 798 365, 798 392 C798 432, 778 466, 744 484 C722 495, 695 496, 673 487 C635 471, 612 436, 614 394 C615 364, 626 336, 645 314 C622 286, 620 248, 638 219 C648 203, 658 193, 670 185 Z"/>\n          <!-- 중앙 몸통(하단/배) + 클릭여유 -->\n          <path class="hit" d="M670 448 C690 440, 710 438, 730 442 C772 451, 796 487, 792 530 C787 591, 784 657, 784 742 C784 858, 780 962, 770 1048 C765 1083, 734 1100, 700 1100 C666 1100, 635 1083, 630 1048 C620 962, 616 858, 616 742 C616 657, 613 591, 608 530 C604 487, 628 451, 670 448 Z"/>\n          <!-- 좌우 대칭 왼쪽 날개 -->\n          <g transform="translate(1400,0) scale(-1,1)">\n            <path class="hit" d="M 735 370\n              C 802 336, 885 312, 992 274\n              C 1086 240, 1180 195, 1266 164\n              C 1314 146, 1360 150, 1378 176\n              C 1392 197, 1387 223, 1360 244\n              C 1325 271, 1287 295, 1235 324\n              C 1170 361, 1103 388, 1023 412\n              C 930 440, 847 446, 777 440\n              C 753 438, 740 430, 732 416\n              C 724 402, 725 384, 735 370 Z"/>\n            <path class="hit" d="M732 456 C796 468, 874 490, 972 528 C1068 565, 1162 601, 1248 633 C1312 657, 1365 685, 1389 710 C1407 729, 1407 751, 1387 767 C1361 787, 1311 787, 1252 772 C1186 755, 1118 741, 1034 735 C939 727, 854 724, 785 712 C753 706, 736 692, 729 670 C722 648, 722 618, 725 581 C728 533, 730 491, 732 456 Z"/>\n          </g>\n        </g>\n      </svg>`;
+    overlaySvg = overlay.querySelector('svg');
+    const hitTargets = overlay.querySelectorAll('.hit');
+    hitTargets.forEach(el => {
+      el.addEventListener('click', ()=>openLoginFor(ROUTES.club), {passive:true});
+      el.addEventListener('pointermove', e => {
+        const r = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - r.left;
+        mouse.y = e.clientY - r.top;
+        mouse.active = true;
+      }, {passive:true});
+      el.addEventListener('pointerenter', e => {
+        const r = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - r.left;
+        mouse.y = e.clientY - r.top;
+        mouse.active = true;
+      }, {passive:true});
+      el.addEventListener('pointerleave', () => { mouse.active = false; }, {passive:true});
+    });
+  }
+
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2); W=window.innerWidth; H=window.innerHeight;
+    canvas.width=Math.floor(W*dpr); canvas.height=Math.floor(H*dpr); canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); center={x:W*0.5,y:H*0.5};
+    const scaleW=(W*1.22)/SW, scaleH=(H*1.08)/SH; scale=Math.max(scaleW,scaleH);
+    for(const p of particles){ p.tx=toScreenX(p.sx); p.ty=toScreenY(p.sy); }
+    renderWingOverlay();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  canvas.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top; mouse.active=true; });
+  canvas.addEventListener('pointerleave', ()=>mouse.active=false);
+
+  const pointCount = window.innerWidth < 768 ? 4200 : 9800;
+  const sampled = await sampleLinePoints(whiteStrokeSvg(SVG_TEXT), pointCount);
+  SW=sampled.SW; SH=sampled.SH; resize();
+
+  particles = sampled.pts.map((pt,i)=>{
+    const tx=toScreenX(pt.x), ty=toScreenY(pt.y);
+    const a=Math.random()*Math.PI*2, r=Math.max(window.innerWidth,window.innerHeight)*(0.34 + Math.random()*0.42);
+    return {
+      x:center.x + Math.cos(a)*r + (Math.random()-.5)*80,
+      y:center.y + Math.sin(a)*r + (Math.random()-.5)*80,
+      tx,ty,sx:pt.x,sy:pt.y,vx:0,vy:0,
+      isOuter:(pt.w||0)>165,
+      size:(window.innerWidth<768?0.44:0.36)+Math.random()*(window.innerWidth<768?0.95:0.78)+((pt.w||0)>165?(window.innerWidth<768?0.45:0.38):0),
+      alpha:0.24 + Math.random()*0.72 + ((pt.w||0)>165 ? 0.08 : 0),
+      tw:Math.random()*Math.PI*2, sparkleSeed:Math.random()*Math.PI*2,
+      pulse:0, pulseV:0, phase:i/sampled.pts.length, lag:Math.random()*0.1,
+      explodeVX:0, explodeVY:0
+    };
+  });
+
+  function drawBackgroundGlow(form){
+    const g=ctx.createRadialGradient(center.x,center.y,20,center.x,center.y,Math.min(W,H)*0.48);
+    g.addColorStop(0,`rgba(244,114,182,${0.055*form})`);
+    g.addColorStop(.4,`rgba(168,85,247,${0.035*form})`);
+    g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+
+
+  function openLoginFor(dest){
+    pendingLoginDestination = dest || ROUTES.vip;
+    if(loginShown){
+      loginScreen.classList.add('show');
+      memberIdInput?.focus();
+      return;
+    }
+    triggerLoginTransition();
+    setTimeout(()=>memberIdInput?.focus(), 760);
+  }
+
+  navLinks.forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const type=a.dataset.nav;
+      if(type==='vip'){
+        e.preventDefault();
+        const url = new URL(window.location.href);
+        url.searchParams.delete('vip');
+        window.history.replaceState({},'',url);
+        openLoginFor(ROUTES.vip);
+        return;
+      }
+      if(type==='club'){
+        a.setAttribute('href', ROUTES.club);
+        return;
+      }
+      if(type==='party'){
+        a.setAttribute('href', ROUTES.party);
+        return;
+      }
+    });
+  });
+
+  function triggerLoginTransition(){
+    if(transitioning||loginShown) return;
+    pendingLoginDestination = pendingLoginDestination || ROUTES.club;
+    transitioning=true; transitionAt=performance.now(); app.classList.add('transitioning');
+    hintText.style.opacity='0';
+    const wingG = overlay.querySelector('#wingLoginVisible');
+    if(wingG){ wingG.style.animation='none'; wingG.style.filter='drop-shadow(0 0 22px rgba(255,160,255,.95))'; wingG.style.opacity='1'; }
+    for(const p of particles){
+      const dx=p.x-mouse.x, dy=p.y-mouse.y; const d=Math.hypot(dx,dy)||1;
+      const ang = Math.atan2(p.y-center.y,p.x-center.x) + (Math.random()-.5)*0.6;
+      const burst = p.isOuter ? (1.4+Math.random()*2.1) : (0.9+Math.random()*1.4);
+      p.explodeVX = Math.cos(ang)*burst + (dx/d)*0.6;
+      p.explodeVY = Math.sin(ang)*burst + (dy/d)*0.6;
+      p.pulseV += p.isOuter ? 0.8 : 0.45;
+    }
+    setTimeout(()=>{ overlay.style.opacity='0'; app.classList.add('login-mode'); }, 220);
+    setTimeout(()=>{ loginScreen.classList.add('show'); loginShown=true; }, 700);
+  }
+
+  function frame(now){
+    raf=requestAnimationFrame(frame); ctx.clearRect(0,0,W,H);
+    const t=clamp((now-startedAt)/3000,0,1); const form=easeOutCubic(t);
+    if(!transitioning && t>0.98) hintText.style.opacity='0.7';
+    const transT = transitioning ? clamp((now-transitionAt)/520,0,1) : 0;
+    const transEase = easeOutCubic(transT);
+
+    for(const p of particles){
+      if(!transitioning){
+        const gate = clamp((form*1.28) - (p.phase*0.42 + p.lag), 0, 1);
+        const dx=p.tx-p.x, dy=p.ty-p.y;
+        p.vx += dx*(0.006 + gate*0.028); p.vy += dy*(0.006 + gate*0.028);
+        p.vx += Math.cos(now*0.0024 + p.tw) * (1-gate) * 0.03; p.vy += Math.sin(now*0.0022 + p.tw) * (1-gate) * 0.03;
+        if(mouse.active){
+          const mx=p.x-mouse.x, my=p.y-mouse.y, d2=mx*mx+my*my, rad=120;
+          if(d2<rad*rad && d2>0.001){ const d=Math.sqrt(d2), n=1-d2/(rad*rad), burst=n*n, f=.95*burst; p.vx+=(mx/d)*f; p.vy+=(my/d)*f; p.pulseV += 0.22*burst; }
+        }
+        p.vx += Math.cos(now*0.0018+p.tw)*0.0022*gate; p.vy += Math.sin(now*0.0015+p.tw)*0.0022*gate;
+        p.vx*=0.90; p.vy*=0.90; p.x+=p.vx; p.y+=p.vy;
+      }else{
+        p.vx = (p.vx*0.88) + p.explodeVX*(0.14 + transEase*0.18);
+        p.vy = (p.vy*0.88) + p.explodeVY*(0.14 + transEase*0.18);
+        p.x += p.vx; p.y += p.vy;
+        p.explodeVX *= 0.985; p.explodeVY *= 0.985;
+      }
+
+      const tw=(Math.sin(now*0.0042 + p.tw)+1)*0.5;
+      const glint=(Math.sin(now*0.011 + p.sparkleSeed)+1)*0.5;
+      p.pulseV += (-p.pulse)*0.06; p.pulseV *= 0.82; p.pulse += p.pulseV; p.pulse *= 0.94;
+      const sparkle = Math.pow(glint, 6) * (p.isOuter ? 0.75 : 0.42);
+      const edgeBoost = p.isOuter ? 0.22 : 0;
+      const gate = transitioning ? (1-transEase) : clamp((form*1.28) - (p.phase*0.42 + p.lag), 0, 1);
+      const r = p.size + tw*0.14*gate + edgeBoost*gate + Math.max(0,p.pulse)*(p.isOuter?1.6:1.2) + sparkle*0.9 + (transitioning?transEase*(p.isOuter?1.2:.5):0);
+      const aBase = (0.10 + p.alpha*0.64 + sparkle*0.35) * (0.06 + gate);
+      const a = transitioning ? aBase*(1-transEase*0.92) : aBase;
+      if(a<=0.003) continue;
+      ctx.beginPath(); ctx.fillStyle=`rgba(228,165,255,${a*(p.isOuter?0.14:0.09)})`; ctx.arc(p.x,p.y,r*(p.isOuter?2.8:2.3),0,Math.PI*2); ctx.fill();
+      if (sparkle > 0.08){ ctx.beginPath(); ctx.fillStyle=`rgba(255,235,255,${a*0.26})`; ctx.arc(p.x,p.y,r*1.15,0,Math.PI*2); ctx.fill(); }
+      ctx.beginPath(); const rr=232 + Math.floor(tw*14 + sparkle*18), gg=165 + Math.floor(tw*26 + sparkle*22);
+      ctx.fillStyle=`rgba(${rr},${gg},255,${a})`; ctx.arc(p.x,p.y,Math.max(0.16,r),0,Math.PI*2); ctx.fill();
+    }
+    drawBackgroundGlow(transitioning ? (1-transEase) : form);
+    if(transitioning && transT>=1){ /* keep dark */ }
+  }
+  frame(performance.now());
+
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=(memberIdInput?.value||'').trim();
+    const pw=(memberPwInput?.value||'');
+    if(id===AUTH_ID && pw===AUTH_PW){
+      localStorage.setItem(AUTH_KEY,'1');
+      window.location.href = pendingLoginDestination || ROUTES.vip;
+      return;
+    }
+    alert('아이디 또는 비밀번호가 다릅니다.');
+    memberPwInput?.select();
+  });
+  window.addEventListener('beforeunload',()=>cancelAnimationFrame(raf));
+})();
+</script>
+</body>
+</html>

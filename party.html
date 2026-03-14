@@ -1,0 +1,343 @@
+<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CLUB DRUGONFLY - Party</title><style>
+*{box-sizing:border-box} html,body{margin:0;background:#06060b;color:#fff;font-family:Inter,system-ui,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at 18% 12%, rgba(168,85,247,.14), transparent 42%),radial-gradient(circle at 82% 14%, rgba(244,114,182,.10), transparent 44%),radial-gradient(circle at 50% 86%, rgba(124,58,237,.07), transparent 58%), #07060a;}
+a{color:inherit}
+
+.shell{width:min(1240px, calc(100vw - 24px)); margin:12px auto 40px;}
+.topbar{position:sticky;top:12px;z-index:20;margin-bottom:14px;padding:10px 12px;border:none;border-radius:16px;background:rgba(0,0,0,.12);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.dot,.brandDot{width:30px;height:30px;border-radius:10px;display:block;object-fit:cover}
+.brand strong{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.88);font-weight:500}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a{font-size:12px;text-decoration:none;border:none;background:rgba(255,255,255,.03);padding:8px 10px;border-radius:11px;color:rgba(255,255,255,.84);letter-spacing:.12em;text-transform:uppercase}
+.nav a.active{border:none;color:#fff;box-shadow:none;background:rgba(236,167,255,.06)}
+.page{padding:0}
+
+/* 배경 퍼포머 */
+.performerBGFixed{position:fixed;left:0;bottom:0;width:min(62vw,780px);height:min(92vh,860px);pointer-events:none;z-index:1;opacity:.32;display:flex;align-items:flex-end;justify-content:flex-start;}
+.performerBGFixed::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.18) 52%, rgba(0,0,0,.52) 100%),linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.48) 100%);}
+.performerBGFixed img{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;object-position:left bottom;filter:contrast(1.05) saturate(1.05);}
+
+.partyStage{
+  margin-top:0;
+  position:relative;
+  border-radius:22px;border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.22);
+  overflow:hidden;
+  padding:9px 18px 18px;
+  min-height:680px;
+  z-index:3;
+}
+
+/* 화살표 */
+.edgeNav{position:absolute;inset:0;pointer-events:none;z-index:6}
+.edgeNav .edgeBtn{
+  pointer-events:auto;
+  position:absolute;
+  width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.35);color:#fff;cursor:pointer;
+  transform:translateY(-50%);
+}
+.edgeNav .edgeBtn.left{left:12px;}
+.edgeNav .edgeBtn.right{right:12px;}
+
+.stageInner{position:relative;z-index:3;display:grid;grid-template-columns:1fr minmax(320px,560px);gap:22px;align-items:start;min-height:680px}
+.spacerCol{grid-column:1;min-height:1px}
+
+:root{ --posterW: min(34vw, 520px); }
+.infoWrap{grid-column:2; padding-top:4px; position:relative;}
+.rightStack{width:var(--posterW);margin:0 auto;display:flex;flex-direction:column;gap:12px;align-items:stretch;}
+
+/* 포스터 */
+.posterWrap{
+  width:100%;
+  aspect-ratio:2/3;
+  border:0;background:transparent;box-shadow:none;
+  overflow:visible;
+  display:grid;place-items:center;
+  position:relative;
+  cursor:pointer;
+}
+.posterWrap img{width:100%;height:100%;object-fit:contain;display:block;padding:0;}
+
+/* ✅ 포스터 우측 하단: 음악 토글 배지 */
+.audioBadge{
+  position:absolute;
+  right:10px; bottom:10px;
+  width:34px; height:34px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.35);
+  display:grid;
+  place-items:center;
+  font-size:16px;
+  line-height:1;
+  color:rgba(255,255,255,.92);
+  user-select:none;
+}
+.audioBadge::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:2px;
+  background:rgba(255,255,255,.92);
+  transform:rotate(-35deg);
+  opacity:1; /* 기본: 꺼짐 표시(슬래시) */
+}
+.posterWrap.playing .audioBadge::after{
+  opacity:0; /* 재생 중: 슬래시 숨김 */
+}
+
+.infoText{width:100%; text-align:left;}
+.label{font-size:10px;letter-spacing:.18em;text-transform:none;color:rgba(255,255,255,.46);margin-bottom:8px}
+.title{margin:0 0 8px;font-size:26px;letter-spacing:-.02em;line-height:1.1}
+.line{margin:0 0 6px;color:rgba(255,255,255,.86);font-size:13px}
+.genre{margin:0 0 8px;color:rgba(255,255,255,.62);font-size:12px}
+.desc{margin:0 0 12px;color:rgba(255,255,255,.78);font-size:13px;line-height:1.45}
+
+/* 머치 */
+.merchFloat{position:absolute;left:clamp(180px, 30vw, 420px);top:58%;transform:translate(-50%,-50%);z-index:4;width:min(560px,46vw);text-align:center;pointer-events:none;transition:left .25s ease;}
+.merchFloat img{width:100%;height:auto;object-fit:contain;display:block;margin:0 auto;filter:drop-shadow(0 22px 38px rgba(0,0,0,.35));}
+
+.merchFlow{display:none;margin-top:14px;text-align:center}
+.merchFlow img{width:min(560px,94%);height:auto;object-fit:contain;display:block;margin:0 auto;filter:drop-shadow(0 22px 38px rgba(0,0,0,.35));}
+
+/* 하단: 숫자만 */
+.bottomCtrls{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:14px 0 16px;position:relative;z-index:4}
+.counter{font-size:12px;letter-spacing:.22em;color:rgba(255,255,255,.82);text-align:center}
+
+/* CTA: 우측 */
+.ctaRow{display:flex;justify-content:flex-end;align-items:center;margin-top:14px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 16px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  cursor:pointer;font-size:12px;letter-spacing:.06em;text-decoration:none
+}
+
+@media (max-width:980px){
+  .partyStage{padding:10px 12px;min-height:0}
+  .stageInner{grid-template-columns:1fr;gap:12px;min-height:auto}
+  .spacerCol{display:none}
+  .infoWrap{grid-column:auto;padding-top:6px}
+
+  .rightStack{width:min(92vw,520px);margin:0 auto;align-items:center;}
+  .posterWrap{width:100%}
+  .infoText{text-align:center}
+  .title{font-size:20px;margin-top:10px}
+
+  .merchFloat{display:none}
+  .merchFlow{display:block}
+
+  /* ✅ 모바일에서만 퍼포머 선명 */
+  .performerBGFixed{width:min(86vw,720px);height:min(70vh,720px);opacity:.38;}
+  .performerBGFixed::after{
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.12) 52%, rgba(0,0,0,.32) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.28) 100%);
+  }
+
+  .edgeNav .edgeBtn.left{left:8px}
+  .edgeNav .edgeBtn.right{right:8px}
+
+  .ctaRow{justify-content:flex-end}
+}
+</style></head><body>
+
+<div class="performerBGFixed" aria-hidden="true"><img id="performerFixedImg" alt="performer fixed bg"></div>
+
+<div class="shell">
+<header class="topbar">
+  <a class="brand" href="main.html">
+    <img class="dot" src="assets/img/brand-dot.png" alt="brand">
+    <strong>CLUB DRUGONFLY</strong>
+  </a>
+  <nav class="nav">
+    <a href="club.html">CLUB</a>
+    <a class="active" href="party.html">PARTY</a>
+    <a href="vip.html">VIP</a>
+  </nav>
+</header>
+
+<main class="page">
+<section class="partyStage" id="partyStage">
+  <div class="edgeNav" id="edgeNav">
+    <button class="edgeBtn left" id="btnPrev" aria-label="이전">‹</button>
+    <button class="edgeBtn right" id="btnNext" aria-label="다음">›</button>
+  </div>
+
+  <div class="merchFloat" aria-hidden="true"><img id="merchFloatImg" alt="merch"></div>
+
+  <div class="stageInner">
+    <div class="spacerCol" aria-hidden="true"></div>
+    <aside class="infoWrap">
+      <div class="rightStack">
+        <div class="posterWrap" id="posterWrap" title="Play / Pause">
+          <img id="posterImg" alt="party poster">
+          <div class="audioBadge" aria-hidden="true">♪</div>
+        </div>
+
+        <!-- ✅ 모바일 기준 앵커: 설명글 블록 -->
+        <div class="infoText" id="infoTextBlock">
+          <div class="label" id="tTagline">Iridescent shock. Industrial pulse.</div>
+          <h2 class="title" id="tName">BLOWFLY SHEEN</h2>
+          <p class="line" id="tLine">DJ FLUX</p>
+          <p class="genre" id="tGenre">Industrial Techno / EBM</p>
+          <p class="desc" id="tDesc">IRIDESCENT WINDBREAKER</p>
+        </div>
+
+        <div class="merchFlow"><img id="merchFlowImg" alt="merch"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="bottomCtrls">
+    <div class="counter" id="partyCounter">01 / 04</div>
+  </div>
+</section>
+
+<div class="ctaRow">
+  <a class="btn" href="vip.html">Go to VIP shopping</a>
+</div>
+
+</main>
+</div>
+
+<script>
+const $=(s)=>document.querySelector(s);
+
+const PARTY_DATA = [
+  { id:"01", name:"BLOWFLY SHEEN", tagline:"Iridescent shock. Industrial pulse.", roleLine:"DJ FLUX",
+    genre:"Industrial Techno / EBM", merch:"IRIDESCENT WINDBREAKER",
+    poster:"assets/img/party-01-poster.png", performer:"assets/img/party-01-performer-main.png", merchImg:"assets/img/party-01-merch.png",
+    audio:"assets/audio/FLUX.mp3" },
+  { id:"02", name:"SPEC SHIFT", tagline:"Precision noise. Chrome ritual motion.", roleLine:"DJ CHROME PETAL",
+    genre:"Percussive Techno / Industrial Performance", merch:"MECH-LEG BOOTS",
+    poster:"assets/img/party-02-poster.png", performer:"assets/img/party-02-performer-main.png", merchImg:"assets/img/party-02-merch.png",
+    audio:"assets/audio/CHROMEPETAL.mp3" },
+  { id:"03", name:"NEON MOLT", tagline:"Neon metamorph. Pop chaos bloom.", roleLine:"Performer LARVA KING · DJ ACID LACE",
+    genre:"Experimental Club / Deconstructed Club / Rave Pop", merch:"SEGMENT ARM WARMERS",
+    poster:"assets/img/party-03-poster.png", performer:"assets/img/party-03-performer-main.png", merchImg:"assets/img/party-03-merch.png",
+    audio:"assets/audio/LARVAKING.mp3" },
+  { id:"04", name:"GAG", tagline:"Loop pressure. Cold web control.", roleLine:"Performer KNØT · DJ BLACK THREAD",
+    genre:"Hardgroove Techno / Hypnotic Techno", merch:"LOW-TEMP BODY CANDLE SET",
+    poster:"assets/img/party-04-poster.png", performer:"assets/img/party-04-performer-main.png", merchImg:"assets/img/party-04-merch.png",
+    audio:"assets/audio/KNØT.mp3" }
+];
+
+let idx=0;
+
+/* ✅ 오디오: 포스터 클릭 토글 */
+const posterWrap = $('#posterWrap');
+const audio = new Audio();
+audio.preload = 'none';
+audio.loop = true;
+
+function setPosterPlayingUI(isPlaying){
+  posterWrap.classList.toggle('playing', !!isPlaying);
+}
+
+function stopAudio(){
+  if(!audio.paused){
+    audio.pause();
+  }
+  setPosterPlayingUI(false);
+}
+
+async function toggleAudioForCurrentParty(){
+  const p = PARTY_DATA[idx];
+  const targetSrc = p.audio || "";
+
+  // 같은 트랙 재생 중이면 끔
+  if(audio.src && audio.src.endsWith(targetSrc) && !audio.paused){
+    audio.pause();
+    setPosterPlayingUI(false);
+    return;
+  }
+
+  // 다른 트랙이면 교체 후 재생
+  if(!audio.src.endsWith(targetSrc)){
+    audio.src = targetSrc;
+  }
+
+  try{
+    await audio.play();
+    setPosterPlayingUI(true);
+  }catch(e){
+    // 모바일 자동재생 정책/파일 경로 문제 시 UI만 꺼둠
+    setPosterPlayingUI(false);
+  }
+}
+
+audio.addEventListener('pause', ()=>setPosterPlayingUI(false));
+audio.addEventListener('ended', ()=>setPosterPlayingUI(false));
+
+posterWrap.addEventListener('click', ()=>{ toggleAudioForCurrentParty(); });
+
+function renderParty(){
+  const p=PARTY_DATA[idx];
+
+  $('#posterImg').src = p.poster;
+  $('#performerFixedImg').src = p.performer;
+  $('#merchFloatImg').src = p.merchImg;
+  $('#merchFlowImg').src = p.merchImg;
+
+  $('#tTagline').textContent = p.tagline;
+  $('#tName').textContent = p.name;
+  $('#tLine').textContent = p.roleLine;
+  $('#tGenre').textContent = p.genre;
+  $('#tDesc').textContent = p.merch;
+
+  $('#partyCounter').textContent = `${p.id} / ${String(PARTY_DATA.length).padStart(2,'0')}`;
+
+  // 카드 전환 시에는 재생 끔(이전 곡이 계속 나오는 상황 방지)
+  stopAudio();
+
+  requestAnimationFrame(updateArrowLock);
+}
+
+$('#btnPrev').onclick=()=>{idx=(idx-1+PARTY_DATA.length)%PARTY_DATA.length; renderParty();};
+$('#btnNext').onclick=()=>{idx=(idx+1)%PARTY_DATA.length; renderParty();};
+renderParty();
+
+/*
+✅ 모바일 화살표(요구 확정):
+- 시작 위치: 설명글 블록 중앙(anchorCenterY)
+- 스크롤로 올라오면 anchorCenterY를 따라옴
+- anchorCenterY가 화면 중앙(centerY)에 닿으면 centerY에 고정(더 위로 안 감)
+*/
+const btnL = $('#btnPrev');
+const btnR = $('#btnNext');
+
+function updateArrowLock(){
+  const isMobile = window.matchMedia('(max-width: 980px)').matches;
+
+  if(!isMobile){
+    btnL.style.position = 'absolute';
+    btnR.style.position = 'absolute';
+    btnL.style.top = '50%';
+    btnR.style.top = '50%';
+    return;
+  }
+
+  const anchor = $('#infoTextBlock');
+  if(!anchor) return;
+
+  const anchorRect = anchor.getBoundingClientRect();
+  const anchorCenterY = anchorRect.top + anchorRect.height * 0.5;
+  const centerY = window.innerHeight * 0.5;
+
+  const topPx = (anchorCenterY > centerY) ? anchorCenterY : centerY;
+
+  btnL.style.position = 'fixed';
+  btnR.style.position = 'fixed';
+  btnL.style.top = topPx + 'px';
+  btnR.style.top = topPx + 'px';
+}
+
+window.addEventListener('scroll', updateArrowLock, {passive:true});
+window.addEventListener('resize', updateArrowLock);
+updateArrowLock();
+</script>
+</body></html>
