@@ -62,7 +62,7 @@ body{overflow:hidden}
 <div class="app" id="app">
   <canvas id="particleCanvas"></canvas>
   <div id="wingOverlay"></div>
-  <header class="topbar topbar-min"><a class="brand-mini" href="index.html">CLUB DRUGONFLY</a><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
+  <header class="topbar topbar-min"><a class="brand-mini" id="brandHomeLink" href="index.html">CLUB DRUGONFLY</a><nav class="nav nav-main"><a href="club.html" data-nav="club">Club</a><a href="party.html" data-nav="party">Party</a><a href="#" data-nav="vip">VIP</a></nav></header>
   <div class="mainOnlyVideoHint" id="hintText" aria-hidden="true"></div>
   <section class="loginScreen" id="loginScreen">
     <div class="loginWrap">
@@ -206,14 +206,7 @@ const AUTH_ID = 'Sw33t_t00th_8o8';
 const AUTH_PW = 'Sp0iL3d_Sug4r!';
 const AUTH_KEY='drugonfly_member_auth';
 const ROUTES = { club:'club.html', party:'party.html', vip:'vip.html' };
-
-// ?vip=1 진입: 이미 로그인이면 vip.html 직행, 아니면 로딩 후 자동 로그인창 오픈
-const _vipRequested = new URLSearchParams(window.location.search).get('vip') === '1';
-if(_vipRequested && localStorage.getItem(AUTH_KEY) === '1'){
-  window.location.replace(ROUTES.vip);
-}
-
-let pendingLoginDestination = _vipRequested ? ROUTES.vip : ROUTES.club;
+let pendingLoginDestination = ROUTES.club;
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
 function easeOutCubic(t){return 1-Math.pow(1-t,3);}
@@ -300,6 +293,19 @@ async function sampleLinePoints(svgText,maxPoints){
   canvas.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top; mouse.active=true; });
   canvas.addEventListener('pointerleave', ()=>mouse.active=false);
 
+  // 모바일 하단 터치 미작동 보완: canvas 전체에 탭 이벤트 → 로그인창 오픈
+  // (SVG hit 영역이 화면 밖으로 잘려도 동작하도록)
+  let _canvasTapFired = false;
+  const handleCanvasTap = (e) => {
+    if(loginShown) return; // 이미 로그인창 표시 중이면 무시
+    if(_canvasTapFired) return;
+    _canvasTapFired = true;
+    setTimeout(()=>{ _canvasTapFired = false; }, 600);
+    openLoginFor(ROUTES.club);
+  };
+  canvas.addEventListener('pointerup', handleCanvasTap);
+  canvas.addEventListener('touchend', (e)=>{ e.preventDefault(); handleCanvasTap(e); }, {passive:false});
+
   const pointCount = window.innerWidth < 768 ? 4200 : 9800;
   const sampled = await sampleLinePoints(whiteStrokeSvg(SVG_TEXT), pointCount);
   SW=sampled.SW; SH=sampled.SH; resize();
@@ -337,6 +343,18 @@ async function sampleLinePoints(svgText,maxPoints){
     }
     triggerLoginTransition();
     setTimeout(()=>memberIdInput?.focus(), 820);
+  }
+
+  // 브랜드 링크 클릭: 로그인창이 열려 있으면 페이지 새로고침으로 잠자리 화면으로 복귀
+  const brandHomeLink = document.getElementById('brandHomeLink');
+  if(brandHomeLink){
+    brandHomeLink.addEventListener('click', (e)=>{
+      if(loginShown || transitioning){
+        e.preventDefault();
+        window.location.replace('index.html');
+      }
+      // 로그인창이 없는 일반 상태면 href 그대로 동작
+    });
   }
 
   navLinks.forEach(a=>{
@@ -425,11 +443,6 @@ async function sampleLinePoints(svgText,maxPoints){
     if(transitioning && transT>=1){ /* keep dark */ }
   }
   frame(performance.now());
-
-  // ?vip=1 로 진입했고 아직 미로그인 상태면 파티클 완성 직후 자동으로 로그인창 오픈
-  if(_vipRequested){
-    openLoginFor(ROUTES.vip);
-  }
 
   form.addEventListener('submit',e=>{
     e.preventDefault();
